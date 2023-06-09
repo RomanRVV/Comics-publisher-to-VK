@@ -41,7 +41,7 @@ def upload_image_to_server(url):
             'photo': file
         }
         response = requests.post(upload_url, files=files)
-        response.raise_for_status()
+    response.raise_for_status()
     return response.json()
 
 
