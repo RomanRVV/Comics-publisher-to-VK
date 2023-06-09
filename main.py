@@ -21,6 +21,20 @@ def fetch_xkcd_comic_and_comments(url):
     return comments
 
 
+def handle_vk_error(response):
+    vk_answer = response.json()
+    try:
+        if vk_answer['error']:
+            raise requests.HTTPError
+    except requests.HTTPError:
+        error_msg = vk_answer['error']['error_msg']
+        error_code = vk_answer['error']['error_code']
+        print('Код ошибки:', error_msg)
+        print('Текст ошибки:', error_code)
+    except KeyError:
+        pass
+
+
 def get_url_to_download_image(group_id, access_token):
     url = 'https://api.vk.com/method/photos.getWallUploadServer'
     api_version = 5.131
@@ -30,6 +44,7 @@ def get_url_to_download_image(group_id, access_token):
         'v': api_version
     }
     response = requests.get(url, params=payload)
+    handle_vk_error(response)
     response.raise_for_status()
     return response.json()
 
@@ -41,6 +56,7 @@ def upload_image_to_server(url):
             'photo': file
         }
         response = requests.post(upload_url, files=files)
+    handle_vk_error(response)
     response.raise_for_status()
     return response.json()
 
@@ -57,6 +73,7 @@ def save_image_in_album(photo, server, hash, group_id, access_token):
         'hash': hash
     }
     response = requests.post(url, params=payload)
+    handle_vk_error(response)
     response.raise_for_status()
     return response.json()
 
@@ -74,6 +91,7 @@ def post_image_on_wall(comments, group_id, access_token, media_id, owner_id):
         'message': comments
     }
     response = requests.post(url, params=payload)
+    handle_vk_error(response)
     response.raise_for_status()
 
 
