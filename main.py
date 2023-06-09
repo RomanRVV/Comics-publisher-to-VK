@@ -45,25 +45,23 @@ def upload_image_to_server(url):
     return response.json()
 
 
-def save_image_in_album(data_to_save_image, group_id, access_token):
+def save_image_in_album(photo, server, hash, group_id, access_token):
     url = 'https://api.vk.com/method/photos.saveWallPhoto'
     api_version = 5.131
     payload = {
         'access_token': access_token,
         'group_id': group_id,
         'v': api_version,
-        'photo': data_to_save_image['photo'],
-        'server': data_to_save_image['server'],
-        'hash': data_to_save_image['hash']
+        'photo': photo,
+        'server': server,
+        'hash': hash
     }
     response = requests.post(url, params=payload)
     response.raise_for_status()
     return response.json()
 
 
-def post_image_on_wall(comments, group_id, access_token, data_to_post_image):
-    media_id = data_to_post_image['response'][0]['id']
-    owner_id = data_to_post_image['response'][0]['owner_id']
+def post_image_on_wall(comments, group_id, access_token, media_id, owner_id):
     attachments = f'photo{owner_id}_{media_id}'
     url = 'https://api.vk.com/method/wall.post'
     api_version = 5.131
@@ -86,11 +84,18 @@ def main():
     total_comics = 2786
     random_comic_number = randint(0, total_comics)
     comic_url = f'https://xkcd.com/{random_comic_number}/info.0.json'
-    comments = fetch_xkcd_comic_and_comments(comic_url)
-    data_to_save_image = upload_image_to_server(get_url_to_download_image(vk_group_id, vk_access_token))
-    data_to_post_image = save_image_in_album(data_to_save_image, vk_group_id, vk_access_token)
-    post_image_on_wall(comments, vk_group_id, vk_access_token, data_to_post_image)
-    os.remove('image.png')
+    try:
+        comments = fetch_xkcd_comic_and_comments(comic_url)
+        data_to_save_image = upload_image_to_server(get_url_to_download_image(vk_group_id, vk_access_token))
+        vk_photo = data_to_save_image['photo']
+        vk_server = data_to_save_image['server']
+        vk_hash = data_to_save_image['hash']
+        data_to_post_image = save_image_in_album(vk_photo, vk_server, vk_hash, vk_group_id, vk_access_token)
+        media_id = data_to_post_image['response'][0]['id']
+        owner_id = data_to_post_image['response'][0]['owner_id']
+        post_image_on_wall(comments, vk_group_id, vk_access_token, media_id, owner_id)
+    finally:
+        os.remove('image.png')
 
 
 if __name__ == '__main__':
