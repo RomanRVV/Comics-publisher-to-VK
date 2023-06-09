@@ -36,11 +36,11 @@ def get_url_to_download_image(group_id, access_token):
 
 def upload_image_to_server(url):
     with open('image.png', 'rb') as file:
-        boot_url = url['response']['upload_url']
+        upload_url = url['response']['upload_url']
         files = {
             'photo': file
         }
-        response = requests.post(boot_url, files=files)
+        response = requests.post(upload_url, files=files)
         response.raise_for_status()
     return response.json()
 
