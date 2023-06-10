@@ -32,7 +32,7 @@ def handle_vk_error(response):
         print('Код ошибки:', error_msg)
         print('Текст ошибки:', error_code)
     except KeyError:
-        pass
+        return vk_answer
 
 
 def get_url_to_download_image(group_id, access_token):
@@ -44,9 +44,9 @@ def get_url_to_download_image(group_id, access_token):
         'v': api_version
     }
     response = requests.get(url, params=payload)
-    handle_vk_error(response)
+    vk_answer = handle_vk_error(response)
     response.raise_for_status()
-    return response.json()
+    return vk_answer
 
 
 def upload_image_to_server(url):
@@ -56,9 +56,9 @@ def upload_image_to_server(url):
             'photo': file
         }
         response = requests.post(upload_url, files=files)
-    handle_vk_error(response)
+    vk_answer = handle_vk_error(response)
     response.raise_for_status()
-    return response.json()
+    return vk_answer
 
 
 def save_image_in_album(photo, server, vk_hash, group_id, access_token):
@@ -73,9 +73,9 @@ def save_image_in_album(photo, server, vk_hash, group_id, access_token):
         'hash': vk_hash
     }
     response = requests.post(url, params=payload)
-    handle_vk_error(response)
+    vk_answer = handle_vk_error(response)
     response.raise_for_status()
-    return response.json()
+    return vk_answer
 
 
 def post_image_on_wall(comments, group_id, access_token, media_id, owner_id):
