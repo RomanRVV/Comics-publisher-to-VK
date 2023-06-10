@@ -31,6 +31,7 @@ def handle_vk_error(response):
         error_code = vk_answer['error']['error_code']
         print('Код ошибки:', error_msg)
         print('Текст ошибки:', error_code)
+        exit()
     except KeyError:
         return vk_answer
 
